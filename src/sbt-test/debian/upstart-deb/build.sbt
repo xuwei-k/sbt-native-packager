@@ -25,7 +25,7 @@ TaskKey[Unit]("check-control-files") := {
   ()
 }
 
-InputKey[Unit]("check-softlink") := Def.inputTask {
+InputKey[Unit]("check-softlink") := {
   import complete.DefaultParsers._
   val args = spaceDelimited("<args>").parsed
   assert(args.size >= 2, "Usage: check-softlink link to target")

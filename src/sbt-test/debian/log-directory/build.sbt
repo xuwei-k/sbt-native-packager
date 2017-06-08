@@ -17,7 +17,7 @@ packageDescription := """A fun package description of our software,
 
 defaultLinuxLogsLocation := "/non-standard/log"
 
-InputKey[Unit]("check-softlink") := Def.inputTask {
+InputKey[Unit]("check-softlink") := {
   import complete.DefaultParsers._
   val args = spaceDelimited("<args>").parsed
   assert(args.size >= 2, "Usage: check-softlink link to target")
