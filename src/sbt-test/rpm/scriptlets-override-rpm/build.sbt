@@ -14,9 +14,9 @@ rpmLicense := Some("BSD")
 
 mainClass in (Compile, run) := Some("com.example.MainApp")
 
-TaskKey[Unit]("unzipAndCheck") <<= (packageBin in Rpm, streams) map { (rpmFile, streams) =>
-  val rpmPath = Seq(rpmFile.getAbsolutePath)
-  Process("rpm2cpio", rpmPath) #| Process("cpio -i --make-directories") ! streams.log
+TaskKey[Unit]("unzipAndCheck") := {
+  val rpmPath = Seq(((packageBin in Rpm).value.getAbsolutePath)
+  Process("rpm2cpio", rpmPath) #| Process("cpio -i --make-directories") ! streams.value.log
   val scriptlets = Process("rpm -qp --scripts " + rpmFile.getAbsolutePath) !! streams.log
   assert(scriptlets contains "echo postinst", "'echo 'postinst' not present in \n" + scriptlets)
   assert(scriptlets contains "echo preinst", "'echo 'preinst' not present in \n" + scriptlets)
@@ -25,8 +25,8 @@ TaskKey[Unit]("unzipAndCheck") <<= (packageBin in Rpm, streams) map { (rpmFile, 
   ()
 }
 
-TaskKey[Unit]("check-spec-file") <<= (target, streams) map { (target, out) =>
-  val spec = IO.read(target / "rpm" / "SPECS" / "rpm-test.spec")
+TaskKey[Unit]("check-spec-file") := {
+  val spec = IO.read(target.value / "rpm" / "SPECS" / "rpm-test.spec")
   assert(spec contains "echo postinst", "'echo 'postinst' not present in \n" + spec)
   assert(spec contains "echo preinst", "'echo 'preinst' not present in \n" + spec)
   assert(spec contains "echo postun", "'echo 'postun' not present in \n" + spec)
@@ -40,8 +40,8 @@ def countSubstring(str: String, substr: String): Int =
 def isUnique(str: String, searchstr: String): Boolean =
   countSubstring(str, searchstr) == 1
 
-TaskKey[Unit]("unique-scripts-in-spec-file") <<= (target, streams) map { (target, out) =>
-  val spec = IO.read(target / "rpm" / "SPECS" / "rpm-test.spec")
+TaskKey[Unit]("unique-scripts-in-spec-file") := {
+  val spec = IO.read(target.value / "rpm" / "SPECS" / "rpm-test.spec")
   assert(isUnique(spec, "echo postinst"), "'echo 'postinst' not unique in \n" + spec)
   assert(isUnique(spec, "echo preinst"), "'echo 'preinst' not unique in \n" + spec)
   assert(isUnique(spec, "echo postun"), "'echo 'postun' not unique in \n" + spec)
