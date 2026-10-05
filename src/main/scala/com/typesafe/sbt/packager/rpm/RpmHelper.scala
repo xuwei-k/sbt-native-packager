@@ -66,12 +66,12 @@ object RpmHelper {
       else IO.copyFile(from, to, true)
     }
     // First make sure directories are there....
-    IO createDirectories (for {
+    IO.createDirectories((for {
       mapping <- spec.mappings
       (file, dest) <- mapping.mappings
       if file.isDirectory
       target = buildroot / dest
-    } yield target)
+    } yield target))
 
     // We don't have to do any permission modifications since that's in the
     // the .spec file.
@@ -153,10 +153,12 @@ object RpmHelper {
     if (!workArea.exists) workArea.mkdirs()
     // TODO - validate workarea
     // Clean out work area
-    topleveldirs map (workArea / _) foreach { d =>
-      if (d.exists()) IO.delete(d)
-      d.mkdir()
-    }
+    topleveldirs
+      .map((workArea / _))
+      .foreach { d =>
+        if (d.exists()) IO.delete(d)
+        d.mkdir()
+      }
   }
 
   def evalMacro(mcro: String): String =

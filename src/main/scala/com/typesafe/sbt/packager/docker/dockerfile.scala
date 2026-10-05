@@ -79,7 +79,7 @@ case class CombinedCmd(cmd: String, arg: CmdLike) extends CmdLike {
   * A comment
   */
 case class Comment(comment: String) extends CmdLike {
-  def makeContent: String = "# %s\n" format (comment)
+  def makeContent: String = "# %s\n".format((comment))
 }
 
 /**
@@ -93,7 +93,7 @@ case object DockerStageBreak extends CmdLike {
 case class Dockerfile(commands: CmdLike*) {
   def makeContent: String = {
     val sb = new StringBuilder
-    commands foreach { sb append _.makeContent }
+    commands.foreach(c => sb.append(c.makeContent))
     sb.toString()
   }
 }

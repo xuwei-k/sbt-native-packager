@@ -28,14 +28,14 @@ object RpmPlugin extends AutoPlugin {
   override def requires = LinuxPlugin
 
   object autoImport extends RpmKeys {
-    val Rpm: Configuration = config("rpm") extend Linux
+    val Rpm: Configuration = config("rpm").extend(Linux)
     val RpmConstants = Names
   }
 
   import autoImport._
 
   private final def osPostInstallMacro: java.net.URL =
-    getClass getResource "brpJavaRepackJar"
+    getClass.getResource("brpJavaRepackJar")
 
   /** RPM specific names */
   object Names {
@@ -154,7 +154,7 @@ object RpmPlugin extends AutoPlugin {
       val scripts = (Rpm / maintainerScripts).value
       if (!rpmBrpJavaRepackJars.value) {
         val pre = scripts.getOrElse(Names.Pre, Nil)
-        val scriptBits = IO.readStream(RpmPlugin.osPostInstallMacro.openStream, Charset forName "UTF-8")
+        val scriptBits = IO.readStream(RpmPlugin.osPostInstallMacro.openStream, Charset.forName("UTF-8"))
         scripts + (Names.Pre -> (pre :+ scriptBits))
       } else
         scripts

@@ -151,7 +151,7 @@ private class DockerClientTask {
       override def progress(message: ProgressMessage): Unit =
         Option(message.error()) match {
           case Some(error) if error.nonEmpty => log.error(message.error())
-          case _                             => Option(message.stream()) foreach (v => log.info(v))
+          case _                             => Option(message.stream()).foreach((v => log.info(v)))
         }
     }
 }

@@ -245,7 +245,7 @@ object JavaServerAppPackaging extends AutoPlugin {
     import RpmConstants._
     val predefined = List(Pre, Post, Preun, Postun)
     val predefinedScripts = predefined.foldLeft(scripts) { case (scripts, script) =>
-      val userDefined = Option(scriptDirectory / script) collect {
+      val userDefined = Option(scriptDirectory / script).collect {
         case file if file.exists && file.isFile => file.toURI.toURL
       }
       // generate content

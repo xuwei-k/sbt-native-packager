@@ -218,7 +218,7 @@ object DockerPlugin extends AutoPlugin {
               makeChmodRecursive(dockerChmodType.value, Seq(pathInLayer(dockerBaseDirectory, l)))
             ) ++ {
               val layerToPath = (Docker / dockerGroupLayers).value
-              addPerms map { case (tpe, v) =>
+              addPerms.map { case (tpe, v) =>
                 // Try and find the source file for the path from the mappings
                 val layerId = layerMappings
                   .find(_.path == v)
@@ -241,7 +241,7 @@ object DockerPlugin extends AutoPlugin {
           case _       => Seq()
         }) ++
         Seq(makeWorkdir(dockerBaseDirectory)) ++ {
-          (strategy match {
+          strategy match {
             case DockerPermissionStrategy.MultiStage =>
               layerIdsAscending.map { layerId =>
                 makeCopyFrom(pathInLayer(dockerBaseDirectory, layerId), dockerBaseDirectory, stage0name, user, group)
@@ -249,12 +249,12 @@ object DockerPlugin extends AutoPlugin {
             case DockerPermissionStrategy.Run =>
               layerIdsAscending.map(layerId => makeCopyLayerDirect(layerId, dockerBaseDirectory)) ++
                 Seq(makeChmodRecursive(dockerChmodType.value, Seq(dockerBaseDirectory))) ++
-                (addPerms map { case (tpe, v) => makeChmod(tpe, Seq(v)) })
+                addPerms.map { case (tpe, v) => makeChmod(tpe, Seq(v)) }
             case DockerPermissionStrategy.CopyChown =>
               layerIdsAscending.map(layerId => makeCopyChown(layerId, dockerBaseDirectory, user, group))
             case DockerPermissionStrategy.None =>
               layerIdsAscending.map(layerId => makeCopyLayerDirect(layerId, dockerBaseDirectory))
-          })
+          }
         } ++
         dockerLabels.value.map(makeLabel) ++
         dockerEnvVars.value.map(makeEnvVar) ++
@@ -270,7 +270,7 @@ object DockerPlugin extends AutoPlugin {
 
       stage0 ++ stage1
     }
-  ) ++ mapGenericFilesToDocker ++ inConfig(Docker)({
+  ) ++ mapGenericFilesToDocker ++ inConfig(Docker) {
 
     def publishLocalTask =
       Def.task {
@@ -345,7 +345,7 @@ object DockerPlugin extends AutoPlugin {
           }
         )
       },
-      stage := (stage dependsOn dockerGenerateConfig).value,
+      stage := (stage.dependsOn(dockerGenerateConfig)).value,
       com.typesafe.sbt.packager.Keys.stagingDirectory := (Docker / target).value / "stage",
       dockerLayerMappings := {
         val dockerGroups = dockerGroupLayers.value
@@ -384,7 +384,7 @@ object DockerPlugin extends AutoPlugin {
         generateDockerConfig(dockerCommands.value, com.typesafe.sbt.packager.Keys.stagingDirectory.value)
       }
     )
-  })
+  }
 
   /**
     * @param maintainer
@@ -591,7 +591,7 @@ object DockerPlugin extends AutoPlugin {
     if (exposedPorts.isEmpty && exposedUdpPorts.isEmpty) None
     else
       Some(
-        Cmd("EXPOSE", (exposedPorts.map(_.toString) ++ exposedUdpPorts.map(_.toString).map(_ + "/udp")) mkString " ")
+        Cmd("EXPOSE", (exposedPorts.map(_.toString) ++ exposedUdpPorts.map(_.toString).map(_ + "/udp")).mkString(" "))
       )
 
   /**
