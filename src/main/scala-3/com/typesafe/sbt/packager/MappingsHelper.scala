@@ -23,7 +23,7 @@ object MappingsHelper extends Mapper {
     */
   def directory(sourceDir: String): Def.Initialize[Seq[(FileRef, String)]] =
     Def.setting {
-      implicit val conv: FileConverter = fileConverter.value
+      given FileConverter = fileConverter.value
       directory(file(sourceDir)).map { case (f, p) =>
         toFileRef(f) -> p
       }
@@ -44,12 +44,12 @@ object MappingsHelper extends Mapper {
     */
   def contentOf(sourceDir: String): Def.Initialize[Seq[(FileRef, String)]] =
     Def.setting {
-      implicit val conv: FileConverter = fileConverter.value
+      val conv: FileConverter = fileConverter.value
       contentOf(sourceDir = file(sourceDir), conv0 = conv)
     }
 
   def contentOf(sourceDir: File, conv0: FileConverter): Seq[(FileRef, String)] = {
-    implicit val conv: FileConverter = conv0
+    given FileConverter = conv0
     contentOf(sourceDir).map { case (f, p) =>
       toFileRef(f) -> p
     }
@@ -115,7 +115,7 @@ object MappingsHelper extends Mapper {
     * Get the mappings for the given files relative to the given directories.
     */
   def relative(files: Seq[File], dirs: Seq[File], conv0: FileConverter): Seq[(FileRef, String)] = {
-    implicit val conv: FileConverter = conv0
+    given FileConverter = conv0
     (files --- dirs).pair(relativeTo(dirs) | flat).map { case (f, p) =>
       toFileRef(f) -> p
     }
